@@ -9,6 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="App.fs" />
+    <Compile Include="Window1.fs" />
+    <Compile Include="Window2.fs" />
     <Compile Include="Utilities.fs" />
     <Compile Include="Selection.fs" />
     <Compile Include="Program.fs" />

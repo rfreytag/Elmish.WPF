@@ -1,59 +1,11 @@
 ﻿module Elmish.WPF.Samples.Capabilities.Program
 
-open System.Windows
-
 open Serilog
 open Serilog.Extensions.Logging
 
 open Elmish.WPF
 
-open Selection
-
-
-type Screen =
-  SelectionScreen
-
-type Model =
-  { VisibleScreen: Screen option
-    Selection: Selection }
-
-type Msg =
-  | SetVisibleScreen of Screen option
-  | SelectionMsg of SelectionMsg
-
-
-module Program =
-  module VisibleScreen =
-    let get m = m.VisibleScreen
-    let set v m = { m with VisibleScreen = v }
-  module Selection =
-    open Selection
-    let get m = m.Selection
-    let set v m = { m with Selection = v }
-    let map = map get set
-    let update = update >> map
-
-  let init =
-    { VisibleScreen = None
-      Selection = Selection.init }
-
-  let update = function
-    | SetVisibleScreen s -> s |> VisibleScreen.set
-    | SelectionMsg msg -> msg |> Selection.update
-
-  let boolToVis = function
-    | true  -> Visibility.Visible
-    | false -> Visibility.Collapsed
-
-  let bindings () = [
-    "Selection"
-      |> Binding.SubModel.required Selection.bindings
-      |> Binding.mapModel Selection.get
-      |> Binding.mapMsg SelectionMsg
-    "ShowSelection" |> Binding.cmd (SelectionScreen |> Some |> SetVisibleScreen)
-    "SelectionVisibility" |> Binding.oneWay (VisibleScreen.get >> (=) (Some SelectionScreen) >> boolToVis)
-  ]
-
+open AppModule
 
 let main window =
 
@@ -65,6 +17,14 @@ let main window =
       .WriteTo.Console()
       .CreateLogger()
 
-  WpfProgram.mkSimple (fun () -> Program.init) Program.update Program.bindings
+  let createWindow1 () = createWindow1.Invoke()
+  let createWindow2 () =
+    let window = createWindow2.Invoke()
+    window.Owner <- mainWindow
+    window
+
+  let bindings = App.bindings createWindow1 createWindow2
+
+  WpfProgram.mkSimple (fun () -> App.init) App.update bindings
   |> WpfProgram.withLogger (new SerilogLoggerFactory(logger))
   |> WpfProgram.startElmishLoop window
