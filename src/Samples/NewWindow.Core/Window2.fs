@@ -59,7 +59,7 @@ module Window2 =
     then InOut.Out Window2OutMsg.Close
     else InOut.In msg
 
-  let bindings unit : Binding<Window2,InOut<Window2Msg,Window2OutMsg>,obj> list =
+  let bindings () : Binding<Window2,InOut<Window2Msg,Window2OutMsg>,obj> list =
     let inBindings =
       [ "Input" |> Binding.twoWay (Input.get, SetInput)
         "IsChecked" |> Binding.twoWay (IsChecked.get, SetChecked)

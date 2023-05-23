@@ -6,16 +6,20 @@ open Serilog.Extensions.Logging
 open Elmish
 open Elmish.WPF
 
+
 module Core =
+
 
   type Model =
     { CurrentTime: DateTimeOffset
       Text: string
       StatusMsg: string }
 
+
   type CmdMsg =
     | Save of string
     | Load
+
 
   let init (): Model * CmdMsg list =
     { CurrentTime = DateTimeOffset.Now
@@ -35,6 +39,7 @@ module Core =
     | SaveFailed of exn
     | LoadFailed of exn
 
+
   let update (msg: Msg) (m: Model): Model * CmdMsg list =
     match msg with
     | SetTime t -> { m with CurrentTime = t }, []
@@ -48,10 +53,13 @@ module Core =
     | SaveFailed ex -> { m with StatusMsg = sprintf "Saving failed with exception %s: %s" (ex.GetType().Name) ex.Message }, []
     | LoadFailed ex -> { m with StatusMsg = sprintf "Loading failed with exception %s: %s" (ex.GetType().Name) ex.Message }, []
 
+
+
 module Platform =
 
   open System.IO
   open Core
+
 
   let bindings (): Binding<Model, Msg> list = [
     "CurrentTime" |> Binding.oneWay (fun m -> m.CurrentTime)
@@ -60,6 +68,7 @@ module Platform =
     "Save" |> Binding.cmd RequestSave
     "Load" |> Binding.cmd RequestLoad
   ]
+
 
   let save (text: string): Async<Msg> =
     async {
@@ -71,6 +80,7 @@ module Platform =
         return SaveSuccess
       else return SaveCanceled
     }
+
 
   let load (): Async<Msg> =
     async {
@@ -89,17 +99,23 @@ module Platform =
     | Save text -> Cmd.OfAsync.either save text id SaveFailed
     | Load -> Cmd.OfAsync.either load () id LoadFailed
 
+
+
 open Core
 open Platform
 
+
 let designVm = ViewModel.designInstance (init () |> fst) (bindings ())
+
 
 let timerTick (dispatch: Msg -> unit): unit =
   let timer = new Timers.Timer(1000.)
   timer.Elapsed.Add (fun _ -> dispatch (SetTime DateTimeOffset.Now))
   timer.Start()
 
+
 let main (window: System.Windows.Window): unit =
+
   let logger =
     LoggerConfiguration()
       .MinimumLevel.Override("Elmish.WPF.Update", Events.LogEventLevel.Verbose)
@@ -112,4 +128,3 @@ let main (window: System.Windows.Window): unit =
   |> WpfProgram.withSubscription (fun _ -> Cmd.ofSub timerTick)
   |> WpfProgram.withLogger (new SerilogLoggerFactory(logger))
   |> WpfProgram.startElmishLoop window
-

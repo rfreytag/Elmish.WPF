@@ -25,8 +25,8 @@ let main (mainWindow: Window) (createWindow1: Func<#Window>) (createWindow2: Fun
     window.Owner <- mainWindow
     window
 
-  let init unit : App = App.init
-  let bindings : (unit -> Binding<App,AppMsg> list) = App.bindings createWindow1 createWindow2
-  WpfProgram.mkSimple init App.update bindings
+  let init unit : App = AppModule.init
+  let bindings : (unit -> Binding<App,AppMsg> list) = AppModule.bindings createWindow1 createWindow2
+  WpfProgram.mkSimple init AppModule.update bindings
   |> WpfProgram.withLogger (new SerilogLoggerFactory(logger))
   |> WpfProgram.startElmishLoop mainWindow

@@ -4,7 +4,7 @@ open Elmish.WPF
 
 
 module Window1 =
-  let init : string = ""
+  let init = ""
 
   let bindings unit : Binding<'b,'b> list = [
     "Input" |> Binding.twoWay (id, id)
